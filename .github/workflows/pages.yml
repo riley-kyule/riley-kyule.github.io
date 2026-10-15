@@ -15,29 +15,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Validate HTML
-        run: npx --yes html-validate@8 --rule 'no-inline-style:off' --rule 'require-sri:off' --rule 'no-raw-characters:off' index.html || echo "::warning::HTML validation reported issues"
-      - name: Check page size
-        run: |
-          size=$(stat -c%s index.html)
-          echo "index.html is $((size/1024)) KB"
-          [ "$size" -lt 5000000 ] || (echo "Page over 5 MB" && exit 1)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build static export
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+      # GitHub Pages would otherwise run Jekyll and drop the _next folder.
+      - run: touch out/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
 
   deploy:
-    needs: check
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
       - id: deployment
         uses: actions/deploy-pages@v4

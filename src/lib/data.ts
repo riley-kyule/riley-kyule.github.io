@@ -1193,3 +1193,18 @@ export const REPOS: Repo[] = [
     "url": "https://github.com/riley-kyule/alx-system_engineering-devops"
   }
 ];
+
+// Final timeline stop, verbatim from the previous site's 2026 entry.
+export const NEXT_STEP = { title: "What's next", detail: "Push Engine and EWMS in production, and looking for my next role." } as const;
+
+// Back of the ID card ("What I am"); every line restates an item above.
+export const ID_CARD = {
+  since: "2017",
+  whatIAm: [
+    "Full Stack & DevOps Engineer",
+    "BSc Geology, University of Nairobi",
+    "ALX Software Engineering, 2024",
+    "Built Push Engine and EWMS",
+    "Founder and engineer, Eversatile Solutions",
+  ],
+} as const;

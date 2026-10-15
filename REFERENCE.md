@@ -1,5 +1,7 @@
 # Reference spec
 
+> Analysis of the original reference video. The current site follows the later written brief (grayscale palette, Next.js), which overrides the colours below; see README.md.
+
 Taken from 31 frames (1 fps, 720×1280) of `reference.mp4`. The video is a phone filming a laptop, so the colours are warmed by the camera and every measurement below is an estimate for a ~1440px-wide viewport.
 
 ## Global

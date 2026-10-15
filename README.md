@@ -2,31 +2,71 @@
 
 Personal portfolio of Riley (Phillip) Kyule, full stack and DevOps engineer in Nairobi.
 
-One self-contained `index.html`: no build step, no dependencies. Case studies are client-side routes (`#/work/push-engine`, `#/work/ewms`, …), so it runs on any static host.
+Built with Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS 4 and Lenis. It is exported as a static site and deployed to GitHub Pages at https://riley-kyule.github.io.
+
+## Run it
+
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # static export into out/
+npm start        # serve out/ locally
+npm run lint
+```
 
 ## Edit content
 
-Everything lives in the `CONTENT` block near the top of the `<script>` in `index.html`:
+All copy lives in **`src/lib/data.ts`**, and components only read from it. It exports `PROFILE`, `NAV`, `SKILL_GROUPS`, `EXPERIENCE`, `EDUCATION`, `PROJECTS`, `CERTIFICATIONS` and `ACHIEVEMENTS`. It also has small helpers for the ID card (`ID_CARD`) and the last timeline stop (`NEXT_STEP`).
 
-- `CASES`: the case studies (problem, what was built, diagram, decisions, results)
-- `REPOS`: the "More on GitHub" list
-- `STACK`, `CREDS`, `TIMELINE`, `STATS`, `CONTACT`
+The content came from the previous single-file site, which was confirmed as the source of truth. Nothing was invented. Anything the source doesn't have is left out:
 
-Photos are embedded as base64 WebP, so the page has no external image requests.
+| Missing | Effect |
+| --- | --- |
+| Résumé PDF | `PROFILE.resume` is `null`, so the Résumé ↓ buttons are hidden. Add the PDF to `public/` and set the path to show them. |
+| Phone number | No `tel:` link in Contact. Set `PROFILE.phone` and `PROFILE.phoneHref`. |
+| Coding-platform stats, ranks, honours | Achievement cards use line icons instead of platform logos. |
+| CGPA or scores, school or intermediate education | Not shown on the timeline or the ID card. |
+| Certificate links | Certification rows are not links. |
 
-Two `TODO`s in the `CONTENT` block switch on parts of the reference design that need content you don't have yet:
+## Sections
 
-- `CONTACT.resume`: a CV link, which adds the Résumé buttons.
-- `shot` on a case: a real screenshot, which replaces the illustrative mock in its Work panel.
+| # | Section | Component | Notes |
+| --- | --- | --- | --- |
+| — | Hero | `hero/Hero.tsx` | Transparent full-body cutout, outlined ghost first name, role heading, CTAs |
+| 01 | About | `sections/About.tsx`, `ui/IdCard.tsx` | Lanyard ID card: pendulum swing from pointer velocity, idle sway, flips on hover/tap/Enter |
+| 02 | Skills | `sections/Skills.tsx`, `sections/PeriodicTable.tsx` | Periodic table, family filters, diagonal wave reveal, logo inspector |
+| 03 | Work | `sections/Work.tsx`, `sections/WorkAccordion.tsx`, `ui/MiniUI.tsx` | Expanding accordion; grayscale illustrative UIs labelled as such |
+| 04 | Certifications | `sections/Certifications.tsx` | Ink-flood rows on hover/focus |
+| 05 | Experience | `sections/Experience.tsx`, `sections/Timeline.tsx` | Education and experience on one spine that draws with scroll |
+| 06 | Achievements | `sections/Achievements.tsx`, `sections/AchievementsGallery.tsx` | Pinned horizontal gallery, count-up numbers |
+| 07 | Contact | `sections/Contact.tsx`, `sections/ContactBits.tsx` | Hopping letters, copy-email chip, spinning badge |
+| — | Case studies | `app/work/[slug]/page.tsx`, `sections/CaseStudy.tsx` | One static page per project at `/work/<slug>/` |
 
-## Design
+## Image assets
 
-`REFERENCE.md` is the spec the layout is based on. Fonts are Schibsted Grotesk (display) and Instrument Serif (italic accent) from Google Fonts. The QR code on the back of the ID card is inline SVG pointing at https://riley-kyule.github.io, so regenerate it if the site moves.
+The brief's hero-video pipeline was skipped on request, so the hero uses the transparent photo cutout. `scripts/build-hero-assets.py` rebuilds every still from the source photos in `assets/`:
+
+```bash
+pip install pillow fonttools brotli
+python3 scripts/build-hero-assets.py
+```
+
+It writes these files:
+
+- `public/portrait-full.webp`: the hero cutout.
+- `public/portrait-full-360.webp`: a smaller cutout for phones.
+- `public/portrait-bust.webp`: the 480×600 ID card photo.
+- `public/og.jpg`: the 1200×630 social preview image.
 
 ## Deploy
 
-**GitHub Pages:** push to `main`, then in the repo go to Settings → Pages → Source: GitHub Actions. The workflow in `.github/workflows/pages.yml` validates and deploys.
+Every push to `main` runs `.github/workflows/pages.yml`, which builds the static export and publishes `out/` to GitHub Pages. To set it up once, open the repo's Settings → Pages and set **Source** to **GitHub Actions**.
 
-**Custom domain:** add a `CNAME` file containing e.g. `riley.eversatile.co`, and point a CNAME record at `riley-kyule.github.io` in Cloudflare.
+## Credits and licences
 
-**Your own server:** copy `index.html` to the web root behind Caddy or Nginx.
+- **Fonts** (self-hosted in `src/fonts`, SIL Open Font License 1.1): Inter Tight, Instrument Serif and JetBrains Mono. The licence texts are next to the font files.
+- **Brand logos** (`public/logos`):
+  - [devicon](https://devicon.dev) "original" SVGs, MIT licence. See `public/logos/LICENSE-devicon.txt`.
+  - BigQuery, Google Analytics, Caddy and Uptime Kuma come from [Simple Icons](https://simpleicons.org), CC0. See `public/logos/LICENSE-simple-icons.md`.
+  - All logos are trademarks of their respective owners and are used only to identify the technologies.
+- **Concept and achievement icons:** drawn for this site, in `src/components/ui/TechLogo.tsx`.
